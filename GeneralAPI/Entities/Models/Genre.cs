@@ -10,6 +10,7 @@ public class Genre : IBase
     public int Id => EntityId;
     [Key]
     [Column("GenreID")]
+    [JsonIgnore]
     public int EntityId { get; set; }
     [Required]
     public string? Name { get; set; }

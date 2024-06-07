@@ -1,9 +1,10 @@
 using GeneralAPI.Entities.Models;
 using GeneralAPI.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GeneralAPI.Controller;
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class GenreController : ControllerBase
@@ -16,9 +17,9 @@ public class GenreController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllGenres()
+    public async Task<IActionResult> GetAllGenres([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var genres = await _repositoryWrapper.Genre.GetAllAsync();
+        var genres = await _repositoryWrapper.Genre.GetAllAsync(pageNumber, pageSize);
         return Ok(genres);
     }
 
@@ -37,8 +38,8 @@ public class GenreController : ControllerBase
     public async Task<IActionResult> AddGenre([FromBody] Genre genre)
     {
         await _repositoryWrapper.Genre.AddAsync(genre);
-         _repositoryWrapper.SaveAsync();
-         return CreatedAtRoute("GetGenreById", new { id = genre.EntityId }, genre);
+        _repositoryWrapper.SaveAsync();
+        return CreatedAtRoute("GetGenreById", new { id = genre.EntityId }, genre);
     }
 
     [HttpPut("{id}")]
@@ -50,10 +51,13 @@ public class GenreController : ControllerBase
             return NotFound();
         }
 
+        genre.EntityId = id; 
         await _repositoryWrapper.Genre.UpdateAsync(genre);
         _repositoryWrapper.SaveAsync();
         return NoContent();
     }
+
+
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteGenre(int id)

@@ -11,9 +11,13 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IBase
         _dbSet = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(int pageNumber, int pageSize)
     {
-        return await _dbSet.Where(e => e.State).ToListAsync();
+        return await _dbSet
+                    .Where(e => e.State)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
     }
 
 
@@ -28,14 +32,16 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IBase
         await _context.SaveChangesAsync();
         return entity;
     }
-
     public async Task<T> UpdateAsync(T entity)
     {
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
-        return entity;
+        var existingEntity = await _dbSet.FindAsync(entity.Id);
+        if (existingEntity != null)
+        {
+            _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+            await _context.SaveChangesAsync();
+        }
+        return existingEntity;
     }
-
     public async Task DeleteAsync(int id)
     {
         var entity = await GetByIdAsync(id);
