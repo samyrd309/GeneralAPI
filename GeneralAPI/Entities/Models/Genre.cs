@@ -7,6 +7,7 @@ namespace GeneralAPI.Entities.Models;
 [Table("Genre")]
 public class Genre : IBase
 {
+    [JsonIgnore]
     public int Id => EntityId;
     [Key]
     [Column("GenreID")]

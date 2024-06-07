@@ -7,9 +7,11 @@ namespace GeneralAPI.Entities.Models
     [Table("User")]
     public class User : IBase
     {
+        [JsonIgnore]
         public int Id => EntityId;
         [Key]
         [Column("UserID")]
+        [JsonIgnore]
         public int EntityId { get; set; }
         [Required]
         public string? Email { get; set; }
